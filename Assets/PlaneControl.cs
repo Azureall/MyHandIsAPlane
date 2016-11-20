@@ -21,6 +21,7 @@ public class PlaneControl : MonoBehaviour {
 	public bool collided = false;
 	float pitch, roll, prevpitch, prevroll;
 	public GameObject camera, crash;
+	public bool debugMode = false; //Allows keyboard controls
 
 	private Quaternion _antiYaw = Quaternion.identity;
 
@@ -41,6 +42,7 @@ public class PlaneControl : MonoBehaviour {
 		if (collided) {
 			speed = 0;
 		} else if (!collided) {
+			
 			bool updateReference = false;
 			ThalmicMyo thalmicMyo = myo.GetComponent<ThalmicMyo> ();
 			Vector3 camChaseSpot = transform.position -
@@ -104,6 +106,12 @@ public class PlaneControl : MonoBehaviour {
 				);
 
 			}
+
+			if (debugMode) {
+				transform.Rotate(controlEffect*Input.GetAxis("Vertical"),0.0f,
+					-controlEffect*Input.GetAxis("Horizontal"));
+			}
+
 			prevroll = roll;
 			prevpitch = pitch;
 		}
