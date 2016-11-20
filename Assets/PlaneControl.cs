@@ -18,7 +18,7 @@ public class PlaneControl : MonoBehaviour {
 	public float brakerate = 5.0f;
 	public float minSpeed = 80.0f;
 	public float maxSpeed= 300.0f;
-	public bool collided = false;
+	private bool collided = false;
 	float pitch, roll, prevpitch, prevroll;
 	public GameObject camera, crash;
 	public bool debugMode = false; //Allows keyboard controls
@@ -161,12 +161,11 @@ public class PlaneControl : MonoBehaviour {
 	}
 
 	void OnCollisionEnter(Collision col){
-		Destroy (planebody); 
-		Destroy (planerudder); 
-		Destroy (planetail);
-		Destroy (planewing);
+		planebody.transform.position += new Vector3(10, 5, 0);
+		planetail.transform.position += new Vector3(5, 10, 0);
+		planewing.transform.position += new Vector3(0, 5, 10);
+		planerudder.transform.position += new Vector3(5, 0, 10);
 		collided = true;
-		crash.transform.position = transform.position;
-		crash.transform.rotation = Quaternion.Euler (camera.transform.rotation.x, 0.0f, camera.transform.rotation.y);
+		crash.SetActive(true);
 	}
 }
