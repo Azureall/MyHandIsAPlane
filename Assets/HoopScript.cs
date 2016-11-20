@@ -15,7 +15,7 @@ public class HoopScript : MonoBehaviour {
 	void Update () {
 
 		if (isCollected) {
-			transform.localScale += new Vector3(0.5F, 0, 0.5F);
+			transform.localScale += new Vector3(-0.5F, 0, -0.5F);
 		
 			CanvasGroup cg = GetComponents<CanvasGroup>()[0];
 			cg.alpha -= 0.02f;
@@ -25,7 +25,11 @@ public class HoopScript : MonoBehaviour {
 			}
 		}
 
-		transform.LookAt(plane.transform);
+		if (Vector3.Distance( plane.transform.position, transform.position) > 10 ) {
+			transform.LookAt(plane.transform);
+		}
+
+
 
 		transform.rotation = Quaternion.Euler(90, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
 
