@@ -23,6 +23,7 @@ public class PlaneControl : MonoBehaviour {
 	float pitch, roll, prevpitch, prevroll;
 	public GameObject camera, crash;
 	public bool debugMode = false; //Allows keyboard controls
+	public float ChangeAngleRate = 5.0f;
 
 	private Quaternion _antiYaw = Quaternion.identity;
 
@@ -70,6 +71,10 @@ public class PlaneControl : MonoBehaviour {
 				updateReference = true;
 			}
 
+			if (Input.GetKeyDown("r")) {
+				UnityEngine.VR.InputTracking.Recenter ();
+			}
+
 			if (speed < minSpeed) {
 				speed = minSpeed;
 			} else if (speed > maxSpeed) {
@@ -112,6 +117,35 @@ public class PlaneControl : MonoBehaviour {
 					transform.eulerAngles.y,
 					relativeRoll * halfControlRate
 				);
+
+
+				if ((transform.position.x > 2000f) || (transform.position.x < 0f) || (transform.position.z > 2000f) || (transform.position.z < 0f)) 
+				{
+
+
+					//controll yaw until yaw = 180 (transform.eulerAngles.y < 180f) || (transform.eulerAngles.y > -180f)
+					//  while (1)
+					// {
+					Debug.Log("AngleX");
+					Debug.Log(transform.eulerAngles.x);
+					Debug.Log("Angley");
+					Debug.Log(transform.position.y);
+
+					transform.eulerAngles = new Vector3(
+						transform.eulerAngles.x,
+						transform.eulerAngles.y + ChangeAngleRate,
+						transform.eulerAngles.z);
+					//   }
+					//controll roll until roll = 0
+					while ((transform.eulerAngles.z > 180f) || (transform.eulerAngles.z < -180f))
+					{
+						transform.eulerAngles = new Vector3(
+							transform.eulerAngles.x,
+							transform.eulerAngles.y,
+							transform.eulerAngles.z + ChangeAngleRate);
+					}    
+
+				}
 
 			}
 
