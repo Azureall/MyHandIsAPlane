@@ -19,6 +19,7 @@ public class PlaneControl : MonoBehaviour {
 	public float minSpeed = 80.0f;
 	public float maxSpeed= 300.0f;
 	private bool collided = false;
+	private int i;
 	float pitch, roll, prevpitch, prevroll;
 	public GameObject camera, crash;
 	public bool debugMode = false; //Allows keyboard controls
@@ -39,11 +40,18 @@ public class PlaneControl : MonoBehaviour {
 		_referenceRoll = rollFromZero (referenceZeroRoll, myo.transform.forward, myo.transform.up);
 
 		UnityEngine.VR.InputTracking.Recenter ();
+		i = 0;
 	}
 	// Update is called once per frame
 	void Update () {
 		if (collided) {
 			speed = 0;
+			for (int i = 0; i < 5; ++i) {
+				planebody.transform.position += .2f * new Vector3 (.5f, 1, 0);
+				planetail.transform.position += .2f * new Vector3 (1, .5f, 0);
+				planerudder.transform.position += .2f * new Vector3 (0, .5f, 1);
+				planewing.transform.position += .2f * new Vector3 (.5f, 0, 1);
+			}
 		} else if (!collided) {
 			
 			bool updateReference = false;
@@ -201,11 +209,19 @@ public class PlaneControl : MonoBehaviour {
 	}
 
 	void OnCollisionEnter(Collision col){
-		planebody.transform.position += new Vector3(10, 5, 0);
-		planetail.transform.position += new Vector3(5, 10, 0);
-		planewing.transform.position += new Vector3(0, 5, 10);
-		planerudder.transform.position += new Vector3(5, 0, 10);
-		collided = true;
-		crash.SetActive(true);
+		if (col.gameObject.tag == "Terrain") {
+			planebody.SetActive (true);
+			planewing.SetActive (true);
+			planetail.SetActive (true);
+			planerudder.SetActive (true);
+			collided = true;
+
+			planebody.transform.position = transform.position;
+			planetail.transform.position = transform.position;
+			planerudder.transform.position = transform.position;
+			planewing.transform.position = transform.position;
+			transform.position = new Vector3 (100, -20, 100);
+			crash.SetActive (true);
+		}
 	}
 }
