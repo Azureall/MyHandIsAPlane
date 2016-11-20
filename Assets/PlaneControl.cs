@@ -37,9 +37,6 @@ public class PlaneControl : MonoBehaviour {
 	void Awake(){
 		Vector3 referenceZeroRoll = computeZeroRollVector (myo.transform.forward);
 		_referenceRoll = rollFromZero (referenceZeroRoll, myo.transform.forward, myo.transform.up);
-
-		UnityEngine.VR.InputTracking.Recenter ();
-		i = 0;
 	}
 	// Update is called once per frame
 	void Update () {
@@ -68,10 +65,6 @@ public class PlaneControl : MonoBehaviour {
 
 			if (Input.GetKeyDown("r")) {
 				UnityEngine.VR.InputTracking.Recenter ();
-			}
-
-			if (Input.GetKeyDown("x")) {
-				transform.position = new Vector3(300,300,15);
 			}
 
 			if (speed < minSpeed) {
