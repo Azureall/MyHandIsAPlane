@@ -16,11 +16,11 @@ public class HoopScript : MonoBehaviour {
 
 		if (isCollected) {
 			transform.localScale += new Vector3(-0.5F, 0, -0.5F);
-		
-			CanvasGroup cg = GetComponents<CanvasGroup>()[0];
-			cg.alpha -= 0.02f;
-
-			if (cg.alpha <= 0.0) {
+//		
+//			CanvasGroup cg = GetComponents<CanvasGroup>()[0];
+//			cg.alpha -= 0.02f;
+//
+			if (transform.localScale.x <= 0) {
 				Destroy(this.gameObject);
 			}
 		}
