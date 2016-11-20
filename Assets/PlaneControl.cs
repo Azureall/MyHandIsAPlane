@@ -23,6 +23,7 @@ public class PlaneControl : MonoBehaviour {
 	public GameObject camera, crash;
 	public bool debugMode = false; //Allows keyboard controls
 	public float ChangeAngleRate = 5.0f;
+	private int i;
 
 	private Quaternion _antiYaw = Quaternion.identity;
 
@@ -202,11 +203,20 @@ public class PlaneControl : MonoBehaviour {
 	}
 
 	void OnCollisionEnter(Collision col){
-		planebody.transform.position += new Vector3(10, 5, 0);
-		planetail.transform.position += new Vector3(5, 10, 0);
-		planewing.transform.position += new Vector3(0, 5, 10);
-		planerudder.transform.position += new Vector3(5, 0, 10);
-		collided = true;
-		crash.SetActive(true);
+		if (col.gameObject.tag == "Terrain") {
+			planebody.transform.position = transform.position;
+			planetail.transform.position = transform.position;
+			planewing.transform.position = transform.position;
+			planerudder.transform.position = transform.position;
+
+
+			planebody.transform.position += new Vector3 (1, .5f, 0);
+			planetail.transform.position += new Vector3 (.5f, 1, 0);
+			planewing.transform.position += new Vector3 (0, .5f, 1);
+			planerudder.transform.position += new Vector3 (.5f, 0, 1);
+			transform.position = new Vector3 (100, -20, 500);
+			collided = true;
+			crash.SetActive (true);
+		}
 	}
 }
