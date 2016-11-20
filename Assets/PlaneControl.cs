@@ -8,6 +8,7 @@ using VibrationType = Thalmic.Myo.VibrationType;
 
 
 public class PlaneControl : MonoBehaviour {
+	public GameObject planebody, planewing, planetail, planerudder;
 	public GameObject myo = null;
 	public bool fullcontrol = true;
 	float speed = 80.0f;
@@ -17,8 +18,10 @@ public class PlaneControl : MonoBehaviour {
 	public float brakerate = 5.0f;
 	public float minSpeed = 80.0f;
 	public float maxSpeed= 300.0f;
+	public bool collided = false;
 	float pitch, roll, prevpitch, prevroll;
-		public GameObject camera;
+	public GameObject camera, crash;
+	public bool debugMode = false; //Allows keyboard controls
 
 	private Quaternion _antiYaw = Quaternion.identity;
 
@@ -36,75 +39,82 @@ public class PlaneControl : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
-		bool updateReference = false;
-		ThalmicMyo thalmicMyo = myo.GetComponent<ThalmicMyo> ();
-		Vector3 camChaseSpot = transform.position -
-		                       transform.forward * 10.0f +
-		                       Vector3.up * 5.0f;
-		float chaseBias = 0.9f;
-		camera.transform.position = chaseBias * camera.transform.position +
-		(1.0f - chaseBias) * camChaseSpot;
-		camera.transform.LookAt (transform.position + transform.forward * 20.0f);
-
-		speed -= transform.forward.y;
-		if (thalmicMyo.pose == Pose.Fist) {
-			speed -= brakerate;
-		} else if (thalmicMyo.pose == Pose.WaveIn) {
-			UnityEngine.VR.InputTracking.Recenter ();
-		} else if (thalmicMyo.pose == Pose.WaveOut) {
-			updateReference = true;
-		}
-
-		if (Input.GetKeyDown("r")) {
-			UnityEngine.VR.InputTracking.Recenter();
-		}
-
-		if (speed < minSpeed) {
-			speed = minSpeed;
-		} else if (speed > maxSpeed) {
-			speed = maxSpeed;
-		}
-
-		float controlEffect = speed / 120.0f;
-
-		if (transform.position.y < Terrain.activeTerrain.SampleHeight (transform.position)) {
-			speed = 0.0f;
-			transform.position =
-				new Vector3 (transform.position.x,
-				Terrain.activeTerrain.SampleHeight (transform.position),
-				transform.position.z);
-		}
-
-		if (updateReference) {
-			Vector3 referenceZeroRoll = computeZeroRollVector (myo.transform.forward);
-			_referenceRoll = rollFromZero (referenceZeroRoll, myo.transform.forward, myo.transform.up);
-		}
-
-		Vector3 zeroRoll = computeZeroRollVector (myo.transform.forward);
-		float roll = (rollFromZero (zeroRoll, myo.transform.forward, myo.transform.up));
-
-		float relativeRoll = normalizeAngle (roll - _referenceRoll);
+		if (collided) {
+			speed = 0;
+		} else if (!collided) {
 			
-		//y is pitch, z is roll
+			bool updateReference = false;
+			ThalmicMyo thalmicMyo = myo.GetComponent<ThalmicMyo> ();
+			Vector3 camChaseSpot = transform.position -
+			                      transform.forward * 10.0f +
+			                      Vector3.up * 5.0f;
+			float chaseBias = 0.9f;
+			camera.transform.position = chaseBias * camera.transform.position +
+			(1.0f - chaseBias) * camChaseSpot;
+			camera.transform.LookAt (transform.position + transform.forward * 20.0f);
 
-		//roll = myo.transform.forward.x;
-		pitch = -myo.transform.forward.y;
+			speed -= transform.forward.y;
+			if (thalmicMyo.pose == Pose.Fist) {
+				speed -= brakerate;
+			} else if (thalmicMyo.pose == Pose.WaveIn) {
+				UnityEngine.VR.InputTracking.Recenter ();
+			} else if (thalmicMyo.pose == Pose.WaveOut) {
+				updateReference = true;
+			}
 
-		transform.position += transform.forward * Time.deltaTime * speed;
-		//transform.Rotate ((pitch - prevpitch/2) * pitchrate, 0.0f, (roll - prevroll/2) * rollrate);
-		if (fullcontrol) {
-			transform.Rotate ((pitch - prevpitch / 2) * pitchrate, 0.0f, relativeRoll / 25);
-		} else {
-			transform.Rotate ((pitch - prevpitch / 2) * pitchrate, 0.0f, 0.0f);
-			transform.eulerAngles = new Vector3(
-				transform.eulerAngles.x,
-				transform.eulerAngles.y,
-				relativeRoll * halfControlRate
-			);
+			if (speed < minSpeed) {
+				speed = minSpeed;
+			} else if (speed > maxSpeed) {
+				speed = maxSpeed;
+			}
 
+			float controlEffect = speed / 120.0f;
+
+			if (transform.position.y < Terrain.activeTerrain.SampleHeight (transform.position)) {
+				speed = 0.0f;
+				transform.position =
+				new Vector3 (transform.position.x,
+					Terrain.activeTerrain.SampleHeight (transform.position),
+					transform.position.z);
+			}
+
+			if (updateReference) {
+				Vector3 referenceZeroRoll = computeZeroRollVector (myo.transform.forward);
+				_referenceRoll = rollFromZero (referenceZeroRoll, myo.transform.forward, myo.transform.up);
+			}
+
+			Vector3 zeroRoll = computeZeroRollVector (myo.transform.forward);
+			float roll = (rollFromZero (zeroRoll, myo.transform.forward, myo.transform.up));
+
+			float relativeRoll = normalizeAngle (roll - _referenceRoll);
+			
+			//y is pitch, z is roll
+
+			//roll = myo.transform.forward.x;
+			pitch = -myo.transform.forward.y;
+
+			transform.position += transform.forward * Time.deltaTime * speed;
+			//transform.Rotate ((pitch - prevpitch/2) * pitchrate, 0.0f, (roll - prevroll/2) * rollrate);
+			if (fullcontrol) {
+				transform.Rotate ((pitch - prevpitch / 2) * pitchrate, 0.0f, relativeRoll / 25);
+			} else {
+				transform.Rotate ((pitch - prevpitch / 2) * pitchrate, 0.0f, 0.0f);
+				transform.eulerAngles = new Vector3 (
+					transform.eulerAngles.x,
+					transform.eulerAngles.y,
+					relativeRoll * halfControlRate
+				);
+
+			}
+
+			if (debugMode) {
+				transform.Rotate(controlEffect*Input.GetAxis("Vertical"),0.0f,
+					-controlEffect*Input.GetAxis("Horizontal"));
+			}
+
+			prevroll = roll;
+			prevpitch = pitch;
 		}
-		prevroll = roll;
-		prevpitch = pitch;
 	}
 
 	float rollFromZero (Vector3 zeroRoll, Vector3 forward, Vector3 up)
@@ -148,5 +158,15 @@ public class PlaneControl : MonoBehaviour {
 			return angle + 360.0f;
 		}
 		return angle;
+	}
+
+	void OnCollisionEnter(Collision col){
+		Destroy (planebody); 
+		Destroy (planerudder); 
+		Destroy (planetail);
+		Destroy (planewing);
+		collided = true;
+		crash.transform.position = transform.position;
+		crash.transform.rotation = Quaternion.Euler (camera.transform.rotation.x, 0.0f, camera.transform.rotation.y);
 	}
 }
