@@ -55,6 +55,10 @@ public class PlaneControl : MonoBehaviour {
 			updateReference = true;
 		}
 
+		if (Input.GetKeyDown("r")) {
+			UnityEngine.VR.InputTracking.Recenter();
+		}
+
 		if (speed < minSpeed) {
 			speed = minSpeed;
 		} else if (speed > maxSpeed) {
