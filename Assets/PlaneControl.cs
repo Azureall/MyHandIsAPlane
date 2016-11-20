@@ -153,11 +153,10 @@ public class PlaneControl : MonoBehaviour {
 	}
 
 	void OnCollisionEnter(Collision col){
-		planebody.transform.position += new Vector3(10, 5, 0);
-		planetail.transform.position += new Vector3(5, 10, 0);
-		planewing.transform.position += new Vector3(0, 5, 10);
-		planerudder.transform.position += new Vector3(5, 0, 10);
-		collided = true;
-		crash.SetActive(true);
+		if (col.gameObject.name == "Terrain") {
+			
+			collided = true;
+			crash.SetActive (true);
+		}
 	}
 }
